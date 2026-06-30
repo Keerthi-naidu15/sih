@@ -31,6 +31,7 @@ function SectionCard({ title, icon, children, defaultOpen = true }) {
 export default function CropAdvisory() {
     const navigate = useNavigate();
     const user             = useStore(state => state.user);
+    const token            = useStore(state => state.token);
     const advisoryResult   = useStore(state => state.advisoryResult);
     const setAdvisoryResult = useStore(state => state.setAdvisoryResult);
     const clearAdvisoryResult = useStore(state => state.clearAdvisoryResult);
@@ -48,6 +49,10 @@ export default function CropAdvisory() {
     const [advisoryLoading, setAdvisoryLoading] = useState(false);
     const [soilParams, setSoilParams]         = useState({
         SoilType: 'Loamy', Nitrogen: '', Phosphorous: '', Potassium: ''
+    });
+    const getAuthHeaders = () => ({
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
     });
 
     // Fetch weather
@@ -81,7 +86,7 @@ export default function CropAdvisory() {
             const userId = user?._id || user?.id;
             const res = await fetch(`${API_URL}/api/advisory/recommend`, {
                 method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     user_id:     userId,
                     Temparature: parseFloat(weather.temp),

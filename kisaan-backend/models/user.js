@@ -1,38 +1,45 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     phone: {
-        type:   String,
+        type: String,
         unique: true,
-        sparse: true    // ✅ allows docs without phone (e.g. email-only signups)
+        sparse: true
     },
     email: {
-        type:   String,
+        type: String,
         unique: true,
-        sparse: true    // ✅ allows docs without email (e.g. phone-only signups)
+        sparse: true
     },
     password: {
-        type:     String,
-        required: true
+        type: String,
+        required: true,
+        select: false
     },
-    name:      String,
-    language:  { type: String, default: 'en' },
-    location:  String,
+    name: {
+        type: String,
+        trim: true
+    },
+    language: {
+        type: String,
+        default: 'English'
+    },
+    location: String,
     crop_type: String,
     soil_type: String,
     points: {
-        type:    Number,
+        type: Number,
         default: 0
     },
     points_today: {
-        type:    Number,
+        type: Number,
         default: 0
     },
-    last_point_date: String,
+    last_point_date: Date,
     role: {
-        type:    String,
-        default: 'farmer'   // ✅ kept from your original
+        type: String,
+        default: 'farmer'
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', userSchema);

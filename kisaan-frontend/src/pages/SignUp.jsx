@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function SignUp() {
-    const setUser  = useStore(state => state.setUser);
-    const setToken = useStore(state => state.setToken);
-    const navigate = useNavigate();
+    const clearUser = useStore((state) => state.clearUser);
+    const setUser   = useStore((state) => state.setUser);
+    const setToken  = useStore((state) => state.setToken);
+    const navigate  = useNavigate();
 
     const [loading, setLoading]   = useState(false);
     const [error, setError]       = useState('');
@@ -22,7 +23,7 @@ export default function SignUp() {
         setError('');
 
         try {
-            const res  = await fetch(`${API_URL}/api/auth/signup`, {
+            const res = await fetch(`${API_URL}/api/auth/signup`, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify(formData)
@@ -31,12 +32,11 @@ export default function SignUp() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Signup failed');
 
+            clearUser();
             setToken(data.token);
-            // ✅ Fixed: use _id from MongoDB, not id
             setUser({ ...data.user, _id: data.user._id });
 
             navigate('/onboarding');
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -46,14 +46,11 @@ export default function SignUp() {
 
     return (
         <div className="flex flex-col items-center py-16 text-white font-sans">
-
-            {/* Logo */}
             <div className="flex items-center gap-2 text-green-400 font-bold text-2xl mb-10">
                 <Leaf size={28} className="text-green-500" />
                 Kisaan Konnect
             </div>
 
-            {/* Title */}
             <div className="text-center mb-10 max-w-2xl">
                 <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
                     Start Your
@@ -66,7 +63,6 @@ export default function SignUp() {
                 </p>
             </div>
 
-            {/* Card */}
             <div className="w-full max-w-md bg-[#121418] border border-gray-800 rounded-2xl p-8 shadow-xl">
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">Create Account</h2>
 

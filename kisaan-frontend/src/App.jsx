@@ -24,13 +24,11 @@ import React, { useEffect } from 'react';
 // LOGOUT HANDLER
 // =============================================
 function LogoutHandler() {
-    const setUser  = useStore(state => state.setUser);
-    const setToken = useStore(state => state.setToken);
+    const clearUser = useStore(state => state.clearUser);
 
     useEffect(() => {
-        setUser(null);
-        setToken(null);
-    }, [setUser, setToken]);
+        clearUser();
+    }, [clearUser]);
 
     return null;
 }

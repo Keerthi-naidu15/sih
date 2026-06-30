@@ -5,60 +5,53 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function PlantDiseaseDetection() {
-    const navigate    = useNavigate();
+    const navigate = useNavigate();
     const fileInputRef = useRef(null);
-    const videoRef    = useRef(null);
-    const canvasRef   = useRef(null);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
 
-    const [image, setImage]                 = useState(null);
-    const [preview, setPreview]             = useState(null);
-    const [loading, setLoading]             = useState(false);
-    const [result, setResult]               = useState(null);
-    const [error, setError]                 = useState(null);
-    const [cameraMode, setCameraMode]       = useState(false);
-    const [trainingStatus, setTrainingStatus] = useState(null);
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [result, setResult] = useState(null);
+    const [error, setError] = useState(null);
+    const [cameraMode, setCameraMode] = useState(false);
+    const [modelStatus, setModelStatus] = useState(null);
 
-    // =============================================
-    // ✅ Fixed: was using useState as useEffect
-    // =============================================
     useEffect(() => {
         const checkStatus = async () => {
             try {
                 const response = await fetch(`${API_URL}/api/detection/status`);
-                const data     = await response.json();
-                setTrainingStatus(data);
+                const data = await response.json();
+                setModelStatus(data);
             } catch (err) {
                 console.error('Failed to fetch model status:', err);
             }
         };
 
         checkStatus();
-        const interval = setInterval(checkStatus, 5000);
-        return () => clearInterval(interval);
     }, []);
 
-    // =============================================
-    // IMAGE UPLOAD
-    // =============================================
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+
         setImage(file);
         setPreview(URL.createObjectURL(file));
         setResult(null);
         setError(null);
     };
 
-    // =============================================
-    // CAMERA
-    // =============================================
     const startCamera = async () => {
         setCameraMode(true);
         setResult(null);
         setError(null);
+
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            if (videoRef.current) videoRef.current.srcObject = stream;
+            if (videoRef.current) {
+                videoRef.current.srcObject = stream;
+            }
         } catch (err) {
             console.error('Camera access failed:', err);
             setError('Could not access camera. Please check permissions.');
@@ -68,10 +61,12 @@ export default function PlantDiseaseDetection() {
 
     const capturePhoto = () => {
         if (!videoRef.current || !canvasRef.current) return;
+
         const ctx = canvasRef.current.getContext('2d');
-        canvasRef.current.width  = videoRef.current.videoWidth;
+        canvasRef.current.width = videoRef.current.videoWidth;
         canvasRef.current.height = videoRef.current.videoHeight;
         ctx.drawImage(videoRef.current, 0, 0);
+
         canvasRef.current.toBlob((blob) => {
             const file = new File([blob], 'capture.jpg', { type: 'image/jpeg' });
             setImage(file);
@@ -82,17 +77,15 @@ export default function PlantDiseaseDetection() {
 
     const stopCamera = () => {
         if (videoRef.current?.srcObject) {
-            videoRef.current.srcObject.getTracks().forEach(t => t.stop());
+            videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             videoRef.current.srcObject = null;
         }
         setCameraMode(false);
     };
 
-    // =============================================
-    // DETECT DISEASE
-    // =============================================
     const detectDisease = async () => {
         if (!image) return;
+
         setLoading(true);
         setError(null);
         setResult(null);
@@ -103,24 +96,16 @@ export default function PlantDiseaseDetection() {
         try {
             const response = await fetch(`${API_URL}/api/detection/detect`, {
                 method: 'POST',
-                body:   formData
+                body: formData
             });
 
             const data = await response.json();
 
             if (!response.ok || data.error) {
-                const msg = data.error || 'Detection failed';
-                if (msg.toLowerCase().includes('model file not found')) {
-                    throw new Error('⚠️ The disease detection model is not trained yet. Please run the training script first.');
-                }
-                if (msg.toLowerCase().includes('tensorflow is not installed')) {
-                    throw new Error('⚠️ TensorFlow is not installed on the server. Please install it to use disease detection.');
-                }
-                throw new Error(msg);
+                throw new Error(data.error || 'Detection failed');
             }
 
             setResult(data);
-
         } catch (err) {
             console.error(err);
             setError(err.message || 'Failed to process image. Please try again.');
@@ -129,16 +114,19 @@ export default function PlantDiseaseDetection() {
         }
     };
 
-    const isHealthy = (disease) => disease?.toLowerCase().includes('healthy') || false;
+    const clearSelection = () => {
+        setPreview(null);
+        setImage(null);
+        setResult(null);
+        setError(null);
+    };
 
-    // =============================================
-    // RENDER
-    // =============================================
+    const isHealthy = (disease) => disease?.toLowerCase().includes('healthy') || false;
+    const isModelReady = modelStatus?.status === 'ready';
+
     return (
         <div className="min-h-screen bg-transparent pb-24 text-gray-100 flex flex-col font-sans">
             <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 pt-6 md:pt-10">
-
-                {/* Header */}
                 <header className="mb-6 flex items-center gap-4">
                     <button onClick={() => navigate('/')} className="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition-colors">
                         <ChevronLeft size={20} />
@@ -148,37 +136,27 @@ export default function PlantDiseaseDetection() {
                     </h1>
                 </header>
 
-                {/* Model Status Banner */}
-                {trainingStatus && (
+                {modelStatus && (
                     <div className={`mb-6 p-4 rounded-2xl border flex items-center gap-3 ${
-                        trainingStatus.status === 'complete'
+                        isModelReady
                             ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                            : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                            : 'bg-amber-500/10 border-amber-500/20 text-amber-300'
                     }`}>
-                        {trainingStatus.status === 'complete'
-                            ? <CheckCircle size={20} />
-                            : <RefreshCw size={20} className="animate-spin" />
-                        }
+                        {isModelReady ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
                         <div className="flex-1">
                             <p className="text-sm font-bold">
-                                {trainingStatus.status === 'complete'
-                                    ? 'CNN Model Loaded'
-                                    : `Model Training: ${trainingStatus.current_epoch || '...'}/${trainingStatus.total_epochs || '...'}`
-                                }
+                                {isModelReady ? 'Plant Disease Model Ready' : 'Model Files Missing'}
                             </p>
                             <p className="text-[10px] opacity-70">
-                                {trainingStatus.status === 'complete'
-                                    ? 'Real-time predictions enabled.'
-                                    : 'Please wait until training completes for real results.'
-                                }
+                                {isModelReady
+                                    ? 'Leaf scan predictions are available now.'
+                                    : 'Add the trained .h5 model file to the backend disease model folder to enable predictions.'}
                             </p>
                         </div>
                     </div>
                 )}
 
                 <main className="space-y-6">
-
-                    {/* Camera / Upload */}
                     {!cameraMode ? (
                         <div className="bg-black/20 backdrop-blur-md border border-white/5 rounded-3xl p-6 shadow-2xl">
                             {preview ? (
@@ -186,21 +164,24 @@ export default function PlantDiseaseDetection() {
                                     <div className="relative rounded-2xl overflow-hidden aspect-square flex items-center justify-center bg-black/40 border border-white/10">
                                         <img src={preview} alt="Preview" className="w-full h-full object-cover" />
                                         <button
-                                            onClick={() => { setPreview(null); setImage(null); setResult(null); }}
+                                            onClick={clearSelection}
                                             className="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600"
                                         >
                                             <RefreshCw size={16} />
                                         </button>
                                     </div>
+
                                     <button
                                         onClick={detectDisease}
-                                        disabled={loading}
+                                        disabled={loading || !isModelReady}
                                         className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${
-                                            loading ? 'bg-gray-700 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-500 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] active:scale-95'
+                                            loading || !isModelReady
+                                                ? 'bg-gray-700 cursor-not-allowed'
+                                                : 'bg-gradient-to-r from-green-600 to-emerald-500 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] active:scale-95'
                                         }`}
                                     >
                                         {loading ? <RefreshCw className="animate-spin" /> : <Search size={20} />}
-                                        {loading ? 'Analyzing...' : 'Detect Disease'}
+                                        {loading ? 'Analyzing...' : isModelReady ? 'Detect Disease' : 'Model Required'}
                                     </button>
                                 </div>
                             ) : (
@@ -216,11 +197,13 @@ export default function PlantDiseaseDetection() {
                                         <p className="text-xs text-gray-500">Tap to browse files</p>
                                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
                                     </div>
+
                                     <div className="flex items-center gap-4">
                                         <div className="h-px flex-1 bg-white/5"></div>
                                         <span className="text-[10px] uppercase tracking-widest text-gray-600 font-bold">OR</span>
                                         <div className="h-px flex-1 bg-white/5"></div>
                                     </div>
+
                                     <button
                                         onClick={startCamera}
                                         className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all"
@@ -246,7 +229,6 @@ export default function PlantDiseaseDetection() {
                         </div>
                     )}
 
-                    {/* Results */}
                     {result && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <div className="bg-gradient-to-br from-gray-900 to-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
@@ -257,7 +239,7 @@ export default function PlantDiseaseDetection() {
                                             : <AlertCircle className="text-red-400" size={18} />
                                         }
                                         <span className={`text-xs font-bold uppercase tracking-wider ${isHealthy(result.diseasePredicted) ? 'text-green-400' : 'text-red-400'}`}>
-                                            {isHealthy(result.diseasePredicted) ? '✅ Plant is Healthy' : '⚠️ Disease Detected'}
+                                            {isHealthy(result.diseasePredicted) ? 'Plant is Healthy' : 'Disease Detected'}
                                         </span>
                                     </div>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isHealthy(result.diseasePredicted) ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
@@ -266,6 +248,13 @@ export default function PlantDiseaseDetection() {
                                 </div>
 
                                 <div className="p-6 space-y-5">
+                                    {result.plant && (
+                                        <div>
+                                            <p className="text-[10px] uppercase tracking-wide text-gray-500 font-bold mb-1">Plant</p>
+                                            <p className="text-sm font-semibold text-gray-200">{result.plant}</p>
+                                        </div>
+                                    )}
+
                                     <div>
                                         <p className="text-[10px] uppercase tracking-wide text-gray-500 font-bold mb-1">Detected Condition</p>
                                         <p className={`text-lg font-bold ${isHealthy(result.diseasePredicted) ? 'text-green-400' : 'text-orange-400'}`}>
@@ -287,7 +276,7 @@ export default function PlantDiseaseDetection() {
                                         <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 flex gap-3">
                                             <AlertCircle className="text-yellow-400 shrink-0" size={18} />
                                             <p className="text-[11px] text-yellow-200/80 leading-snug">
-                                                <b>Note:</b> These results are from the CNN disease detection model. For critical decisions, consult a professional agronomist.
+                                                <b>Note:</b> These results come from the integrated plant disease classifier. For high-stakes crop decisions, verify with an agronomist.
                                             </p>
                                         </div>
                                     )}
@@ -296,7 +285,6 @@ export default function PlantDiseaseDetection() {
                         </div>
                     )}
 
-                    {/* Error */}
                     {error && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3">
                             <AlertCircle className="text-red-400" size={20} />
