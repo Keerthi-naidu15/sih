@@ -113,7 +113,7 @@ export default function CropAdvisory() {
 
             {/* Header */}
             <div className="sticky top-0 bg-[#0a0d0b]/80 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center gap-3">
-                <button onClick={() => navigate('/')}>
+                <button onClick={() => navigate('/home')}>
                     <ArrowLeft size={18} />
                 </button>
                 <div>

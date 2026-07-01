@@ -139,7 +139,7 @@ export default function Onboarding() {
 
             if (res.ok) {
                 setUser({ ...user, crop_type: crop, crop: crop, location: locationName });
-                navigate('/');
+                navigate('/home');
             } else {
                 alert('Failed to save profile setup.');
             }

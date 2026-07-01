@@ -39,7 +39,7 @@ export default function Login() {
             if (!data.user.crop_type || !data.user.location) {
                 navigate('/onboarding');
             } else {
-                navigate('/');
+                navigate('/home');
             }
         } catch (err) {
             setError(err.message);

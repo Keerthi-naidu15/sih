@@ -17,7 +17,7 @@ import { useStore }      from './store/useStore';
 import StaggeredMenu     from './components/StaggeredMenu';
 import ShapeGrid         from './components/ShapeGrid'; // ✅ replaced Squares
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // =============================================
 // LOGOUT HANDLER
@@ -37,13 +37,26 @@ function LogoutHandler() {
 // =============================================
 function App() {
     const user = useStore(state => state.user);
+    const [isHydrated, setIsHydrated] = useState(() => useStore.persist.hasHydrated());
+
+    useEffect(() => {
+        const unsubscribeHydration = useStore.persist.onFinishHydration(() => {
+            setIsHydrated(true);
+        });
+
+        if (useStore.persist.hasHydrated()) {
+            setIsHydrated(true);
+        }
+
+        return unsubscribeHydration;
+    }, []);
 
     // ✅ Fixed: check crop_type not crop
     const requiresOnboarding = user && ((!user.crop_type && !user.crop) || !user.location);
     const showNav            = user && !requiresOnboarding;
 
     const menuItems = [
-        { label: 'Home',            link: '/' },
+        { label: 'Home',            link: '/home' },
         { label: 'Chat AI',         link: '/chat' },
         { label: 'Plant Disease',   link: '/plant-disease' },
         { label: 'Crop Advisory',   link: '/crop-advisory' },
@@ -97,7 +110,7 @@ function App() {
                     <main className="flex-1 flex flex-col items-center px-4 py-10">
                         <div className="w-full max-w-6xl">
 
-                            {!user ? (
+                            {!isHydrated ? null : !user ? (
                                 <Routes>
                                     <Route path="/"        element={<Landing />} />
                                     <Route path="/login"   element={<Login />} />
@@ -107,13 +120,15 @@ function App() {
 
                             ) : requiresOnboarding ? (
                                 <Routes>
+                                    <Route path="/"            element={<Landing />} />
                                     <Route path="/onboarding" element={<Onboarding />} />
                                     <Route path="*"           element={<Navigate to="/onboarding" />} />
                                 </Routes>
 
                             ) : (
                                 <Routes>
-                                    <Route path="/"              element={<Home />} />
+                                    <Route path="/"              element={<Landing />} />
+                                    <Route path="/home"          element={<Home />} />
                                     <Route path="/chat"          element={<Chat />} />
                                     <Route path="/market"        element={<Market />} />
                                     <Route path="/rewards"       element={<Rewards />} />
@@ -122,7 +137,7 @@ function App() {
                                     <Route path="/plant-disease" element={<PlantDiseaseDetection />} />
                                     <Route path="/onboarding"    element={<Onboarding />} />
                                     <Route path="/logout"        element={<LogoutHandler />} />
-                                    <Route path="*"              element={<Navigate to="/" />} />
+                                    <Route path="*"              element={<Navigate to="/home" />} />
                                 </Routes>
                             )}
                         </div>

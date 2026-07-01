@@ -128,7 +128,7 @@ export default function PlantDiseaseDetection() {
         <div className="min-h-screen bg-transparent pb-24 text-gray-100 flex flex-col font-sans">
             <div className="w-full max-w-md mx-auto flex-1 flex flex-col px-4 pt-6 md:pt-10">
                 <header className="mb-6 flex items-center gap-4">
-                    <button onClick={() => navigate('/')} className="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition-colors">
+                    <button onClick={() => navigate('/home')} className="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition-colors">
                         <ChevronLeft size={20} />
                     </button>
                     <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
