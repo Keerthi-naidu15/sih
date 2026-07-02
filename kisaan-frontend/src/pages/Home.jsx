@@ -95,17 +95,17 @@ export default function Home() {
         if (type === 'green') return {
             border: 'border-l-green-500',
             icon:   <ShieldAlert className="text-green-500" size={20} />,
-            btn:    'from-green-600 to-green-400'
+            btn:    'bg-green-600'
         };
         if (type === 'blue') return {
             border: 'border-l-blue-500',
             icon:   <Activity className="text-blue-500" size={20} />,
-            btn:    'from-blue-600 to-blue-400'
+            btn:    'bg-blue-600'
         };
         return {
             border: 'border-l-orange-500',
             icon:   <Wallet className="text-orange-500" size={20} />,
-            btn:    'from-orange-600 to-orange-400'
+            btn:    'bg-orange-600'
         };
     };
 
@@ -143,7 +143,7 @@ export default function Home() {
                 </header>
 
                 {/* Weather Card */}
-                <section className="rounded-2xl p-5 mb-5 shadow-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400">
+                <section className="rounded-2xl p-5 mb-5 shadow-xl bg-blue-600">
                     <div className="flex items-center text-blue-50 mb-3">
                         <MapPin size={16} className="mr-1" />
                         {user?.location || 'Bangalore'}
@@ -187,7 +187,7 @@ export default function Home() {
                         </div>
                         <button
                             onClick={() => navigate('/crop-advisory?view=result')}
-                            className="text-xs font-bold text-white bg-gradient-to-r from-green-600 to-green-400 px-4 py-2 rounded-lg"
+                            className="text-xs font-bold text-white bg-green-600 px-4 py-2 rounded-lg"
                         >
                             View Details
                         </button>
@@ -220,7 +220,7 @@ export default function Home() {
                         </div>
                         <button
                             onClick={() => navigate('/market')}
-                            className="text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-orange-400 px-4 py-2 rounded-lg"
+                            className="text-xs font-bold text-white bg-orange-600 px-4 py-2 rounded-lg"
                         >
                             View Trends
                         </button>
@@ -258,7 +258,7 @@ export default function Home() {
                                 </div>
                                 <button
                                     onClick={() => window.open(scheme.link, '_blank')}
-                                    className={`text-xs font-bold text-white bg-gradient-to-r ${theme.btn} px-4 py-2 rounded-lg`}
+                                    className={`text-xs font-bold text-white ${theme.btn} px-4 py-2 rounded-lg`}
                                 >
                                     Apply
                                 </button>

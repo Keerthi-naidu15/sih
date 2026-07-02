@@ -1,6 +1,7 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
+import { Leaf } from 'lucide-react';
 import './StaggeredMenu.css';
 
 export const StaggeredMenu = ({
@@ -369,14 +370,9 @@ export const StaggeredMenu = ({
             <header className="staggered-menu-header" aria-label="Main navigation header">
                 <div className="sm-logo" aria-label="Logo">
                     {logoUrl && (
-                        <img
-                            src={logoUrl}
-                            alt="Logo"
-                            className="sm-logo-img"
-                            draggable={false}
-                            height={24}
-                            style={{ maxHeight: '32px' }}
-                        />
+                        <div className="flex items-center gap-2 text-green-500" style={{ maxHeight: '32px' }}>
+                            <Leaf size={24} />
+                        </div>
                     )}
                 </div>
                 <button

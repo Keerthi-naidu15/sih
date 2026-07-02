@@ -54,7 +54,7 @@ export default function SignUp() {
             <div className="text-center mb-10 max-w-2xl">
                 <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
                     Start Your
-                    <span className="block bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-emerald-500 to-green-600">
+                    <span className="block text-green-500">
                         Smart Farming Journey
                     </span>
                 </h1>
@@ -127,7 +127,7 @@ export default function SignUp() {
                     <button
                         disabled={loading}
                         type="submit"
-                        className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition"
+                        className="w-full py-3 rounded-xl font-bold text-white bg-green-600 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition"
                     >
                         {loading ? 'Registering...' : 'Create Account'}
                     </button>

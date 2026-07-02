@@ -70,6 +70,17 @@ function App() {
 
     return (
         <Router>
+            {/* ── Unauthenticated: full-viewport routes with no chrome ─────── */}
+            {!isHydrated ? null : !user ? (
+                <Routes>
+                    <Route path="/"       element={<Landing />} />
+                    <Route path="/login"  element={<Login />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="*"       element={<Navigate to="/" />} />
+                </Routes>
+
+            ) : (
+            /* ── Authenticated / Onboarding: full app shell ─────────────── */
             <div className="min-h-screen bg-[#121212] text-gray-100 relative w-full overflow-x-hidden">
 
                 {/* Background animation */}
@@ -110,24 +121,15 @@ function App() {
                     <main className="flex-1 flex flex-col items-center px-4 py-10">
                         <div className="w-full max-w-6xl">
 
-                            {!isHydrated ? null : !user ? (
+                            {requiresOnboarding ? (
                                 <Routes>
-                                    <Route path="/"        element={<Landing />} />
-                                    <Route path="/login"   element={<Login />} />
-                                    <Route path="/signup" element={<SignUp />} />
-                                    <Route path="*"        element={<Navigate to="/" />} />
-                                </Routes>
-
-                            ) : requiresOnboarding ? (
-                                <Routes>
-                                    <Route path="/"            element={<Landing />} />
+                                    <Route path="/"           element={<Landing />} />
                                     <Route path="/onboarding" element={<Onboarding />} />
                                     <Route path="*"           element={<Navigate to="/onboarding" />} />
                                 </Routes>
-
                             ) : (
                                 <Routes>
-                                    <Route path="/"              element={<Landing />} />
+                                    <Route path="/"              element={<Navigate to="/home" />} />
                                     <Route path="/home"          element={<Home />} />
                                     <Route path="/chat"          element={<Chat />} />
                                     <Route path="/market"        element={<Market />} />
@@ -144,6 +146,7 @@ function App() {
                     </main>
                 </div>
             </div>
+            )}
         </Router>
     );
 }

@@ -302,7 +302,7 @@ export default function Onboarding() {
                     <button
                         disabled={!crop || loading}
                         onClick={isUpdateMode ? handleComplete : () => setStep(2)}
-                        className="w-full max-w-lg mx-auto flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-gradient-to-r from-green-600 to-green-400 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
+                        className="w-full max-w-lg mx-auto flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-green-600 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
                     >
                         {loading ? 'Saving Profile...' : isUpdateMode ? 'Update Crop' : 'Continue Setting Up'}
                         {!isUpdateMode && <ChevronRight className="ml-2" size={20} />}
@@ -320,7 +320,7 @@ export default function Onboarding() {
                         <button
                             disabled={!position || !locationName || loading}
                             onClick={handleComplete}
-                            className="flex-1 flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-gradient-to-r from-green-600 to-green-400 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
+                            className="flex-1 flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-green-600 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
                         >
                             {loading ? 'Finalizing...' : isUpdateMode ? 'Update Farm Location' : 'Complete Onboarding'}
                             <Check className="ml-2" size={20} />

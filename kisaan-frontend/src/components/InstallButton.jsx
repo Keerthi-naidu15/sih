@@ -46,7 +46,7 @@ export default function InstallButton({ mode = 'floating' }) {
       ) : (
         <button
           onClick={handleClick}
-          className="fixed bottom-6 right-6 z-[9999] group inline-flex items-center gap-3 rounded-2xl border border-emerald-300/50 bg-gradient-to-r from-emerald-600 to-lime-500 px-4 py-3 text-white shadow-[0_12px_35px_rgba(5,150,105,0.35)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_16px_40px_rgba(5,150,105,0.45)] active:translate-y-0"
+          className="fixed bottom-6 right-6 z-[9999] group inline-flex items-center gap-3 rounded-2xl border border-emerald-300/50 bg-emerald-600 px-4 py-3 text-white shadow-[0_12px_35px_rgba(5,150,105,0.35)] transition-all duration-300 hover:translate-y-[-2px] hover:shadow-[0_16px_40px_rgba(5,150,105,0.45)] active:translate-y-0"
           title="Install Kisaan Mitra"
         >
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur">
@@ -103,7 +103,7 @@ export default function InstallButton({ mode = 'floating' }) {
 
               <button
                 onClick={() => setShowIOSModal(false)}
-                className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-lime-500 py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
+                className="w-full rounded-2xl bg-emerald-600 py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
               >
                 Got it!
               </button>

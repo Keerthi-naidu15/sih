@@ -177,7 +177,7 @@ export default function PlantDiseaseDetection() {
                                         className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all ${
                                             loading || !isModelReady
                                                 ? 'bg-gray-700 cursor-not-allowed'
-                                                : 'bg-gradient-to-r from-green-600 to-emerald-500 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] active:scale-95'
+                                                : 'bg-green-600 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] active:scale-95'
                                         }`}
                                     >
                                         {loading ? <RefreshCw className="animate-spin" /> : <Search size={20} />}
@@ -231,7 +231,7 @@ export default function PlantDiseaseDetection() {
 
                     {result && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div className="bg-gradient-to-br from-gray-900 to-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="bg-gray-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
                                 <div className={`border-b border-white/5 p-4 flex items-center justify-between ${isHealthy(result.diseasePredicted) ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
                                     <div className="flex items-center gap-2">
                                         {isHealthy(result.diseasePredicted)
