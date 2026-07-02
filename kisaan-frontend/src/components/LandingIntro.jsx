@@ -215,7 +215,7 @@ export default function LandingIntro() {
                             {/* Sphere shaded with radial gradient — rotation visible via gradient shift */}
                             <circle cx="110" cy="190" r="16" fill="url(#seedGrad)" />
                             {/* Specular highlight dot */}
-                            <circle cx="104" cy="183" r="4" fill="rgba(255,255,255,0.35)" />
+
                         </motion.g>
                     </motion.g>
                 </svg>
