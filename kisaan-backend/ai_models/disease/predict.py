@@ -111,15 +111,18 @@ def split_label(raw_class: str):
     try:
         plant, disease = raw_class.split("___", 1)
     except ValueError:
-        return raw_class.replace("_", " "), raw_class.replace("_", " ")
+        humanized = raw_class.replace("_", " ").strip()
+        return humanized, ""
 
     return plant.replace("_", " "), disease.replace("_", " ")
 
 
 def format_name(raw_class: str) -> str:
     plant, disease = split_label(raw_class)
+    if not disease:
+        return plant.title()
     if disease.lower() == "healthy":
-        return f"{plant} (Healthy)"
+        return f"{plant.title()} (Healthy)"
     return f"{plant} - {disease}"
 
 
