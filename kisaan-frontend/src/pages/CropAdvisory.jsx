@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -126,7 +126,7 @@ export default function CropAdvisory() {
 
             <div className="max-w-lg mx-auto px-4 pt-5">
 
-                {/* Weather Card — Only in full mode */}
+                {/* Weather Card - Only in full mode */}
                 {!isResultView && (
                     <div className="bg-blue-600 rounded-2xl p-5 mb-5">
                         <h2 className="text-4xl font-bold">
@@ -134,7 +134,7 @@ export default function CropAdvisory() {
                         </h2>
                         <p>{weather.condition}</p>
                         <p className="text-sm mt-2">
-                            💧 Humidity: {weather.humidity}% | 🌧 Rain: {weather.rainChance}%
+                            Humidity: {weather.humidity}% | Rain: {weather.rainChance}%
                         </p>
                     </div>
                 )}
@@ -187,7 +187,7 @@ export default function CropAdvisory() {
 
                 ) : (
                     <>
-                        {/* Soil Form — Only in full mode */}
+                        {/* Soil Form - Only in full mode */}
                         <SectionCard title="Enter Soil Details" icon={<FlaskConical size={16} />}>
                             <form onSubmit={handleAdvisorySubmit} className="space-y-4">
                                 <select
@@ -250,3 +250,5 @@ export default function CropAdvisory() {
         </div>
     );
 }
+
+

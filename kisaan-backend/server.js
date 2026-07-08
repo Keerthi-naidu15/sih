@@ -89,6 +89,9 @@ app.use((err, req, res, next) => {
 
 async function startServer() {
     try {
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET is not set. Add it in kisaan-backend/.env');
+        }
         await connectDB();
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);

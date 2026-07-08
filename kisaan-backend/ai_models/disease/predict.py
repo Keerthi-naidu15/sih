@@ -3,15 +3,54 @@ import os
 import sys
 
 import numpy as np
+import torch
+import torch.nn as nn
 from PIL import Image
-from tensorflow.keras.models import load_model
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(_DIR, "plant_disease_prediction_model.h5")
+MODEL_PATH = os.path.join(_DIR, "final_model.pth")
 CLASS_PATH = os.path.join(_DIR, "class_indices.json")
-IMG_SIZE = (224, 224)
+IMG_SIZE = (128, 128)
+
+
+class CNNClassifier(nn.Module):
+    def __init__(self, num_classes: int):
+        super().__init__()
+
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(32),
+            nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(64),
+            nn.MaxPool2d(2),
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(128),
+            nn.MaxPool2d(2),
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.MaxPool2d(2),
+        )
+
+        self.fc_layers = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(256 * 8 * 8, 512),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(512, num_classes),
+        )
+
+    def forward(self, x):
+        x = self.conv_layers(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc_layers(x)
+        return x
 
 TREATMENTS = {
     "healthy": "Your plant looks healthy. Keep up regular watering, balanced nutrition, and routine pest checks.",
@@ -31,14 +70,23 @@ TREATMENTS = {
 def load_assets():
     if not os.path.exists(MODEL_PATH):
         raise FileNotFoundError(
-            f"Model file not found at {MODEL_PATH}. Copy the trained model from Plant-Disease-Prediction-using-CNN-main/app/trained_model/plant_disease_prediction_model.h5"
+            f"Model file not found at {MODEL_PATH}. Place your trained PyTorch checkpoint there as final_model.pth."
         )
     if not os.path.exists(CLASS_PATH):
         raise FileNotFoundError(f"Class index file not found at {CLASS_PATH}")
 
-    model = load_model(MODEL_PATH, compile=False)
     with open(CLASS_PATH, "r", encoding="utf-8") as file:
         class_indices = json.load(file)
+
+    num_classes = len(class_indices)
+    model = CNNClassifier(num_classes=num_classes)
+
+    checkpoint = torch.load(MODEL_PATH, map_location="cpu")
+    if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
+        checkpoint = checkpoint["state_dict"]
+
+    model.load_state_dict(checkpoint)
+    model.eval()
 
     return model, class_indices
 
@@ -54,8 +102,9 @@ def load_and_preprocess_image(image_path: str):
     image = Image.open(image_path).convert("RGB")
     image = image.resize(IMG_SIZE)
     image_array = np.array(image).astype("float32") / 255.0
+    image_array = np.transpose(image_array, (2, 0, 1))
     image_array = np.expand_dims(image_array, axis=0)
-    return image_array
+    return torch.from_numpy(image_array)
 
 
 def split_label(raw_class: str):
@@ -89,8 +138,11 @@ def get_treatment(raw_class: str) -> str:
 def predict(image_path: str) -> dict:
     try:
         preprocessed_image = load_and_preprocess_image(image_path)
-        predictions = MODEL.predict(preprocessed_image, verbose=0)
-        predicted_index = int(np.argmax(predictions, axis=1)[0])
+        with torch.no_grad():
+            logits = MODEL(preprocessed_image)
+            probabilities = torch.softmax(logits, dim=1).cpu().numpy()[0]
+
+        predicted_index = int(np.argmax(probabilities))
         raw_class = CLASS_INDICES[str(predicted_index)]
         plant, _ = split_label(raw_class)
 
@@ -98,7 +150,7 @@ def predict(image_path: str) -> dict:
             "plant": plant,
             "disease": format_name(raw_class),
             "raw_class": raw_class,
-            "confidence": round(float(np.max(predictions)) * 100, 2),
+            "confidence": round(float(np.max(probabilities)) * 100, 2),
             "treatment": get_treatment(raw_class)
         }
     except Exception as exc:

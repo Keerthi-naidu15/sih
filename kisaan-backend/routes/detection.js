@@ -8,7 +8,7 @@ const router = express.Router();
 
 const uploadDir = path.join(__dirname, '../uploads/disease_scans');
 const modelDir = path.join(__dirname, '../ai_models/disease');
-const modelPath = path.join(modelDir, 'plant_disease_prediction_model.h5');
+const modelPath = path.join(modelDir, 'final_model.pth');
 const classPath = path.join(modelDir, 'class_indices.json');
 
 if (!fs.existsSync(uploadDir)) {
@@ -30,7 +30,7 @@ router.get('/status', (req, res) => {
         return res.json({
             status: 'ready',
             message: 'Plant disease model is ready',
-            modelFile: 'plant_disease_prediction_model.h5'
+            modelFile: 'final_model.pth'
         });
     }
 
@@ -39,7 +39,7 @@ router.get('/status', (req, res) => {
         message: 'Plant disease model assets are missing',
         modelReady,
         classesReady,
-        expectedFiles: ['plant_disease_prediction_model.h5', 'class_indices.json']
+        expectedFiles: ['final_model.pth', 'class_indices.json']
     });
 });
 

@@ -83,6 +83,21 @@ export const useStore = create(
         {
             name: 'kisaan-storage', // unique name
             storage: createJSONStorage(() => idbStorage), // use localforage
+            version: 2,
+            migrate: (persistedState) => ({
+                ...persistedState,
+                user: null,
+                token: null,
+                chats: [],
+                chatsByUser: {},
+                scans: [],
+                points: 0
+            }),
+            partialize: (state) => ({
+                weather: state.weather,
+                marketPrices: state.marketPrices,
+                advisoryResult: state.advisoryResult
+            }),
         }
     )
 )

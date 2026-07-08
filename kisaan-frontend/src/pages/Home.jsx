@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { CloudSun, Sprout, TrendingUp, ShieldAlert, ChevronRight, MapPin, Droplets, Wind, CloudRain, Leaf, Activity, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export default function Home() {
         };
 
         // =============================================
-        // SCHEMES — real API
+        // SCHEMES - real API
         // =============================================
         const fetchSchemes = async () => {
             try {
@@ -69,7 +69,7 @@ export default function Home() {
         };
 
         // =============================================
-        // MARKET — real Agmarknet API
+        // MARKET - real Agmarknet API
         // =============================================
         const fetchMarket = async () => {
             try {
@@ -78,7 +78,7 @@ export default function Home() {
                 // Get user's crop entry (first item after sorting)
                 if (data?.length > 0) setMarketData(data[0]);
             } catch {
-                // keep null — shows fallback text
+                // keep null - shows fallback text
             } finally {
                 setLoadingMarket(false);
             }
@@ -193,7 +193,7 @@ export default function Home() {
                         </button>
                     </div>
 
-                    {/* Market Trend — real data */}
+                    {/* Market Trend - real data */}
                     <div className="bg-[#121418] rounded-xl p-4 border border-gray-800 flex justify-between items-center border-l-4 border-l-orange-500">
                         <div className="flex items-start">
                             <div className="mr-3">
@@ -213,7 +213,7 @@ export default function Home() {
                                             ({marketData.change}) · {marketData.mandi}
                                         </>
                                     ) : (
-                                        `${user?.crop || 'Cotton'} — check latest prices`
+                                        `${user?.crop || 'Cotton'} - check latest prices`
                                     )}
                                 </p>
                             </div>
