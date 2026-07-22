@@ -17,10 +17,19 @@ node_modules/
 dist/
 build/
 dist-ssr/
+coverage/
+.vite/
+*.tsbuildinfo
 
 # Environment files
 .env
 .env.*
+kisaan-backend/.env
+kisaan-frontend/.env
+kisaan-llm-service/.env
+*.env.local
+*.env.development.local
+*.env.production.local
 
 # Logs and database files
 *.log
@@ -39,6 +48,7 @@ lerna-debug.log*
 *.pt
 *.bin
 *.gguf
+*.pth
 
 # Keep backend source/model folders tracked
 !kisaan-backend/models/
@@ -52,6 +62,11 @@ kisaan-backend/ai_models/**/*.pyc
 
 # Upload folders
 uploads/
+kisaan-backend/uploads/
+kisaan-frontend/dist/
+kisaan-backend/dist/
+kisaan-llm-service/vectorstore/
+kisaan-llm-service/.cache/
 
 # OS/editor files
 .DS_Store
@@ -66,3 +81,7 @@ Thumbs.db
 
 # Kaggle cache
 kagglehub/
+
+# Docker local files
+docker-compose.override.yml
+.docker/
