@@ -54,6 +54,7 @@ function MapUpdater({ center }) {
 // =============================================
 export default function Onboarding() {
     const user    = useStore(state => state.user);
+    const token   = useStore(state => state.token);
     const setUser = useStore(state => state.setUser);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
@@ -67,6 +68,10 @@ export default function Onboarding() {
     const [searchQuery, setSearchQuery] = useState('');
     const [mapCenter, setMapCenter]     = useState([20.5937, 78.9629]); // India center
     const [loading, setLoading]         = useState(false);
+    const getAuthHeaders = () => ({
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    });
 
     useEffect(() => {
         setStep(parseInt(searchParams.get('step')) || 1);
@@ -128,13 +133,13 @@ export default function Onboarding() {
             const userId = user?._id || user?.id;
             const res = await fetch(`${API_URL}/api/users/${userId}`, {
                 method:  'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body:    JSON.stringify({ crop_type: crop, location: locationName })
             });
 
             if (res.ok) {
                 setUser({ ...user, crop_type: crop, crop: crop, location: locationName });
-                navigate('/');
+                navigate('/home');
             } else {
                 alert('Failed to save profile setup.');
             }
@@ -297,7 +302,7 @@ export default function Onboarding() {
                     <button
                         disabled={!crop || loading}
                         onClick={isUpdateMode ? handleComplete : () => setStep(2)}
-                        className="w-full max-w-lg mx-auto flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-gradient-to-r from-green-600 to-green-400 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
+                        className="w-full max-w-lg mx-auto flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-green-600 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
                     >
                         {loading ? 'Saving Profile...' : isUpdateMode ? 'Update Crop' : 'Continue Setting Up'}
                         {!isUpdateMode && <ChevronRight className="ml-2" size={20} />}
@@ -315,7 +320,7 @@ export default function Onboarding() {
                         <button
                             disabled={!position || !locationName || loading}
                             onClick={handleComplete}
-                            className="flex-1 flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-gradient-to-r from-green-600 to-green-400 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
+                            className="flex-1 flex justify-center items-center py-4 px-6 rounded-2xl shadow-2xl text-xl font-black text-white bg-green-600 hover:shadow-green-500/20 disabled:opacity-50 disabled:grayscale transition-all active:scale-[0.98]"
                         >
                             {loading ? 'Finalizing...' : isUpdateMode ? 'Update Farm Location' : 'Complete Onboarding'}
                             <Check className="ml-2" size={20} />

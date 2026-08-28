@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { CloudSun, Sprout, TrendingUp, ShieldAlert, ChevronRight, MapPin, Droplets, Wind, CloudRain, Leaf, Activity, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export default function Home() {
         };
 
         // =============================================
-        // SCHEMES — real API
+        // SCHEMES - real API
         // =============================================
         const fetchSchemes = async () => {
             try {
@@ -69,7 +69,7 @@ export default function Home() {
         };
 
         // =============================================
-        // MARKET — real Agmarknet API
+        // MARKET - real Agmarknet API
         // =============================================
         const fetchMarket = async () => {
             try {
@@ -78,7 +78,7 @@ export default function Home() {
                 // Get user's crop entry (first item after sorting)
                 if (data?.length > 0) setMarketData(data[0]);
             } catch {
-                // keep null — shows fallback text
+                // keep null - shows fallback text
             } finally {
                 setLoadingMarket(false);
             }
@@ -95,17 +95,17 @@ export default function Home() {
         if (type === 'green') return {
             border: 'border-l-green-500',
             icon:   <ShieldAlert className="text-green-500" size={20} />,
-            btn:    'from-green-600 to-green-400'
+            btn:    'bg-green-600'
         };
         if (type === 'blue') return {
             border: 'border-l-blue-500',
             icon:   <Activity className="text-blue-500" size={20} />,
-            btn:    'from-blue-600 to-blue-400'
+            btn:    'bg-blue-600'
         };
         return {
             border: 'border-l-orange-500',
             icon:   <Wallet className="text-orange-500" size={20} />,
-            btn:    'from-orange-600 to-orange-400'
+            btn:    'bg-orange-600'
         };
     };
 
@@ -143,7 +143,7 @@ export default function Home() {
                 </header>
 
                 {/* Weather Card */}
-                <section className="rounded-2xl p-5 mb-5 shadow-xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400">
+                <section className="rounded-2xl p-5 mb-5 shadow-xl bg-blue-600">
                     <div className="flex items-center text-blue-50 mb-3">
                         <MapPin size={16} className="mr-1" />
                         {user?.location || 'Bangalore'}
@@ -187,13 +187,13 @@ export default function Home() {
                         </div>
                         <button
                             onClick={() => navigate('/crop-advisory?view=result')}
-                            className="text-xs font-bold text-white bg-gradient-to-r from-green-600 to-green-400 px-4 py-2 rounded-lg"
+                            className="text-xs font-bold text-white bg-green-600 px-4 py-2 rounded-lg"
                         >
                             View Details
                         </button>
                     </div>
 
-                    {/* Market Trend — real data */}
+                    {/* Market Trend - real data */}
                     <div className="bg-[#121418] rounded-xl p-4 border border-gray-800 flex justify-between items-center border-l-4 border-l-orange-500">
                         <div className="flex items-start">
                             <div className="mr-3">
@@ -213,14 +213,14 @@ export default function Home() {
                                             ({marketData.change}) · {marketData.mandi}
                                         </>
                                     ) : (
-                                        `${user?.crop || 'Cotton'} — check latest prices`
+                                        `${user?.crop || 'Cotton'} - check latest prices`
                                     )}
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={() => navigate('/market')}
-                            className="text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-orange-400 px-4 py-2 rounded-lg"
+                            className="text-xs font-bold text-white bg-orange-600 px-4 py-2 rounded-lg"
                         >
                             View Trends
                         </button>
@@ -258,7 +258,7 @@ export default function Home() {
                                 </div>
                                 <button
                                     onClick={() => window.open(scheme.link, '_blank')}
-                                    className={`text-xs font-bold text-white bg-gradient-to-r ${theme.btn} px-4 py-2 rounded-lg`}
+                                    className={`text-xs font-bold text-white ${theme.btn} px-4 py-2 rounded-lg`}
                                 >
                                     Apply
                                 </button>

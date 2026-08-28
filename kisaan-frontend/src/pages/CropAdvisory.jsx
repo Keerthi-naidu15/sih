@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -31,6 +31,7 @@ function SectionCard({ title, icon, children, defaultOpen = true }) {
 export default function CropAdvisory() {
     const navigate = useNavigate();
     const user             = useStore(state => state.user);
+    const token            = useStore(state => state.token);
     const advisoryResult   = useStore(state => state.advisoryResult);
     const setAdvisoryResult = useStore(state => state.setAdvisoryResult);
     const clearAdvisoryResult = useStore(state => state.clearAdvisoryResult);
@@ -48,6 +49,10 @@ export default function CropAdvisory() {
     const [advisoryLoading, setAdvisoryLoading] = useState(false);
     const [soilParams, setSoilParams]         = useState({
         SoilType: 'Loamy', Nitrogen: '', Phosphorous: '', Potassium: ''
+    });
+    const getAuthHeaders = () => ({
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
     });
 
     // Fetch weather
@@ -81,7 +86,7 @@ export default function CropAdvisory() {
             const userId = user?._id || user?.id;
             const res = await fetch(`${API_URL}/api/advisory/recommend`, {
                 method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     user_id:     userId,
                     Temparature: parseFloat(weather.temp),
@@ -108,7 +113,7 @@ export default function CropAdvisory() {
 
             {/* Header */}
             <div className="sticky top-0 bg-[#0a0d0b]/80 backdrop-blur border-b border-white/5 px-4 py-3 flex items-center gap-3">
-                <button onClick={() => navigate('/')}>
+                <button onClick={() => navigate('/home')}>
                     <ArrowLeft size={18} />
                 </button>
                 <div>
@@ -121,7 +126,7 @@ export default function CropAdvisory() {
 
             <div className="max-w-lg mx-auto px-4 pt-5">
 
-                {/* Weather Card — Only in full mode */}
+                {/* Weather Card - Only in full mode */}
                 {!isResultView && (
                     <div className="bg-blue-600 rounded-2xl p-5 mb-5">
                         <h2 className="text-4xl font-bold">
@@ -129,7 +134,7 @@ export default function CropAdvisory() {
                         </h2>
                         <p>{weather.condition}</p>
                         <p className="text-sm mt-2">
-                            💧 Humidity: {weather.humidity}% | 🌧 Rain: {weather.rainChance}%
+                            Humidity: {weather.humidity}% | Rain: {weather.rainChance}%
                         </p>
                     </div>
                 )}
@@ -182,7 +187,7 @@ export default function CropAdvisory() {
 
                 ) : (
                     <>
-                        {/* Soil Form — Only in full mode */}
+                        {/* Soil Form - Only in full mode */}
                         <SectionCard title="Enter Soil Details" icon={<FlaskConical size={16} />}>
                             <form onSubmit={handleAdvisorySubmit} className="space-y-4">
                                 <select
@@ -245,3 +250,5 @@ export default function CropAdvisory() {
         </div>
     );
 }
+
+

@@ -22,7 +22,14 @@ export const useStore = create(
             token: null,
             setUser: (user) => set({ user }),
             setToken: (token) => set({ token }),
-            clearUser: () => set({ user: null, token: null, chats: [], scans: [], points: 0 }),
+            clearUser: () => set({
+                user: null,
+                token: null,
+                chats: [],
+                chatsByUser: {},
+                scans: [],
+                points: 0
+            }),
 
             weather: null,
             setWeather: (weather) => set({ weather }),
@@ -31,7 +38,37 @@ export const useStore = create(
             setMarketPrices: (prices) => set({ marketPrices: prices }),
 
             chats: [],
-            addChat: (chat) => set((state) => ({ chats: [...state.chats, chat] })),
+            chatsByUser: {},
+            getChatsForUser: (userId) => {
+                if (!userId) return []
+
+                const state = get()
+                const scopedChats = state.chatsByUser?.[userId]
+
+                if (Array.isArray(scopedChats)) {
+                    return scopedChats
+                }
+
+                return Array.isArray(state.chats) ? state.chats : []
+            },
+            addChat: (userId, chat) => set((state) => {
+                if (!userId) {
+                    return {
+                        chats: [...state.chats, chat],
+                    }
+                }
+
+                const existingChats = state.chatsByUser?.[userId]
+                    || (Array.isArray(state.chats) ? state.chats : [])
+
+                return {
+                    chatsByUser: {
+                        ...state.chatsByUser,
+                        [userId]: [...existingChats, chat]
+                    },
+                    chats: []
+                }
+            }),
 
             scans: [],
             addScan: (scan) => set((state) => ({ scans: [...state.scans, scan] })),
@@ -46,6 +83,21 @@ export const useStore = create(
         {
             name: 'kisaan-storage', // unique name
             storage: createJSONStorage(() => idbStorage), // use localforage
+            version: 2,
+            migrate: (persistedState) => ({
+                ...persistedState,
+                user: null,
+                token: null,
+                chats: [],
+                chatsByUser: {},
+                scans: [],
+                points: 0
+            }),
+            partialize: (state) => ({
+                weather: state.weather,
+                marketPrices: state.marketPrices,
+                advisoryResult: state.advisoryResult
+            }),
         }
     )
 )

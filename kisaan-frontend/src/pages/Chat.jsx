@@ -5,7 +5,7 @@ import { Mic, Send, Bot, MicOff, Loader2, Camera, Globe } from 'lucide-react';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function Chat() {
-    const { chats, addChat, addPoints, user, setUser } = useStore();
+    const { addChat, addPoints, user, setUser, token, getChatsForUser } = useStore();
     const [input, setInput]               = useState('');
     const [isListening, setIsListening]   = useState(false);
     const [isLoading, setIsLoading]       = useState(false);
@@ -16,28 +16,39 @@ export default function Chat() {
     const messagesEndRef = useRef(null);
     const fileInputRef   = useRef(null);
 
-    // =============================================
-    // AUTO SCROLL
-    // =============================================
+    const userId = user?._id || user?.id;
+    const chats  = getChatsForUser(userId);
+
+    const getAuthHeaders = (includeJson = false) => {
+        const headers = {};
+
+        if (includeJson) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        return headers;
+    };
+
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [chats, isLoading]);
 
-    // =============================================
-    // LANGUAGE CHANGE — fixed to use correct endpoint
-    // =============================================
     const handleLanguageChange = async (e) => {
         const newLang = e.target.value;
         try {
-            const userId = user?._id || user?.id;
             const res = await fetch(`${API_URL}/api/users/${userId}`, {
                 method:  'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeaders(true),
                 body:    JSON.stringify({ language: newLang })
             });
+
             if (res.ok) {
                 setUser({ ...user, language: newLang });
-                addChat({
+                addChat(userId, {
                     id:    Date.now(),
                     text:  `Language changed to ${newLang}. I will reply in this language now!`,
                     isBot: true
@@ -50,9 +61,6 @@ export default function Chat() {
         }
     };
 
-    // =============================================
-    // SPEECH RECOGNITION
-    // =============================================
     useEffect(() => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
@@ -89,6 +97,7 @@ export default function Chat() {
             alert('Voice input not supported. Please use Chrome or Edge.');
             return;
         }
+
         if (isListening) {
             recognitionRef.current.stop();
             setIsListening(false);
@@ -104,13 +113,10 @@ export default function Chat() {
         }
     };
 
-    // =============================================
-    // SEND MESSAGE
-    // =============================================
     const handleSend = async (e) => {
         e?.preventDefault();
         const userText = input.trim();
-        if ((!userText && !imageFile) || isLoading) return;
+        if ((!userText && !imageFile) || isLoading || !userId) return;
 
         if (isListening) {
             recognitionRef.current?.stop();
@@ -119,7 +125,7 @@ export default function Chat() {
 
         setInput('');
 
-        addChat({
+        addChat(userId, {
             id:           Date.now(),
             text:         userText || 'Uploaded an image for analysis.',
             isBot:        false,
@@ -129,9 +135,6 @@ export default function Chat() {
 
         setIsLoading(true);
 
-        // ✅ Fixed: use _id not user_id
-        const userId = user?._id || user?.id;
-
         try {
             if (imageFile) {
                 const formData = new FormData();
@@ -139,8 +142,9 @@ export default function Chat() {
                 formData.append('image', imageFile);
 
                 const response = await fetch(`${API_URL}/api/upload-image`, {
-                    method: 'POST',
-                    body:   formData
+                    method:  'POST',
+                    headers: getAuthHeaders(),
+                    body:    formData
                 });
 
                 if (!response.ok) {
@@ -149,33 +153,31 @@ export default function Chat() {
                 }
 
                 const data = await response.json();
-                addChat({
-                    id:   Date.now() + 1,
-                    text: `🌿 Detected: ${data.diseasePredicted} (${data.confidence} confidence)\n\n📋 ${data.treatment}`,
+                addChat(userId, {
+                    id:    Date.now() + 1,
+                    text:  `Detected: ${data.diseasePredicted} (${data.confidence} confidence)\n\nTreatment: ${data.treatment}`,
                     isBot: true
                 });
 
                 if (data.points_earned) addPoints(data.points_earned);
-
             } else {
                 const response = await fetch(`${API_URL}/api/chat`, {
                     method:  'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: getAuthHeaders(true),
                     body:    JSON.stringify({ user_id: userId, message: userText })
                 });
 
                 if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
                 const data = await response.json();
-                addChat({ id: Date.now() + 1, text: data.reply, isBot: true });
+                addChat(userId, { id: Date.now() + 1, text: data.reply, isBot: true });
                 if (data.points_earned) addPoints(data.points_earned);
             }
-
         } catch (error) {
             console.error('Chat API Error:', error);
-            addChat({
-                id:   Date.now() + 1,
-                text: '⚠️ Connection error. Please make sure the backend server is running.',
+            addChat(userId, {
+                id:    Date.now() + 1,
+                text:  'Connection error. Please make sure the backend server is running.',
                 isBot: true
             });
         } finally {
@@ -185,9 +187,6 @@ export default function Chat() {
         }
     };
 
-    // =============================================
-    // IMAGE SELECT
-    // =============================================
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -197,13 +196,8 @@ export default function Chat() {
         reader.readAsDataURL(file);
     };
 
-    // =============================================
-    // RENDER
-    // =============================================
     return (
         <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
-
-            {/* Header */}
             <header className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between shrink-0">
                 <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-kisaan-100 flex items-center justify-center mr-3">
@@ -211,7 +205,7 @@ export default function Chat() {
                     </div>
                     <div>
                         <h1 className="font-bold text-gray-900 dark:text-white">Kisaan Konnect AI</h1>
-                        <p className="text-xs text-green-600 font-medium tracking-wide">● Online</p>
+                        <p className="text-xs text-green-600 font-medium tracking-wide">Online</p>
                     </div>
                 </div>
 
@@ -223,18 +217,17 @@ export default function Chat() {
                         className="bg-transparent text-xs font-medium text-gray-700 dark:text-gray-300 outline-none cursor-pointer"
                     >
                         <option value="English">English</option>
-                        <option value="Hindi">हिंदी (Hindi)</option>
-                        <option value="Marathi">मराठी (Marathi)</option>
-                        <option value="Telugu">తెలుగు (Telugu)</option>
-                        <option value="Tamil">தமிழ் (Tamil)</option>
-                        <option value="Gujarati">ગુજરાતી (Gujarati)</option>
-                        <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
-                        <option value="Kannada">ಕನ್ನಡ (Kannada)</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Marathi">Marathi</option>
+                        <option value="Telugu">Telugu</option>
+                        <option value="Tamil">Tamil</option>
+                        <option value="Gujarati">Gujarati</option>
+                        <option value="Punjabi">Punjabi</option>
+                        <option value="Kannada">Kannada</option>
                     </select>
                 </div>
             </header>
 
-            {/* Messages */}
             <div className="flex-grow overflow-y-auto p-4 space-y-4 scroll-smooth">
                 {chats.length === 0 && !isLoading && (
                     <div className="flex flex-col items-center justify-center h-full text-gray-500 opacity-70">
@@ -244,7 +237,7 @@ export default function Chat() {
                     </div>
                 )}
 
-                {chats.map(msg => (
+                {chats.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.isBot ? 'justify-start' : 'justify-end'}`}>
                         <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm flex flex-col ${
                             msg.isBot
@@ -270,7 +263,6 @@ export default function Chat() {
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
             <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shrink-0">
                 {imagePreview && (
                     <div className="mb-3 relative inline-block">

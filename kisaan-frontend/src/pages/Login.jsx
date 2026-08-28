@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function Login() {
-    const setUser  = useStore(state => state.setUser);
-    const setToken = useStore(state => state.setToken);
-    const navigate = useNavigate();
+    const clearUser = useStore((state) => state.clearUser);
+    const setUser   = useStore((state) => state.setUser);
+    const setToken  = useStore((state) => state.setToken);
+    const navigate  = useNavigate();
 
     const [loading, setLoading]   = useState(false);
     const [error, setError]       = useState('');
@@ -22,7 +23,7 @@ export default function Login() {
         setError('');
 
         try {
-            const res  = await fetch(`${API_URL}/api/auth/login`, {
+            const res = await fetch(`${API_URL}/api/auth/login`, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify(formData)
@@ -31,16 +32,15 @@ export default function Login() {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Login failed');
 
+            clearUser();
             setToken(data.token);
-            // ✅ Fixed: use _id from MongoDB, not id
             setUser({ ...data.user, _id: data.user._id });
 
             if (!data.user.crop_type || !data.user.location) {
                 navigate('/onboarding');
             } else {
-                navigate('/');
+                navigate('/home');
             }
-
         } catch (err) {
             setError(err.message);
         } finally {
@@ -50,19 +50,16 @@ export default function Login() {
 
     return (
         <div className="flex flex-col items-center py-16 text-white font-sans">
-
-            {/* Logo */}
             <div className="flex items-center gap-2 text-green-400 font-bold text-2xl mb-10">
                 <Leaf size={28} className="text-green-500" />
                 Kisaan Konnect
             </div>
 
-            {/* Hero */}
             <div className="text-center mb-10 max-w-2xl">
                 <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
                     Unlock Your
-                    <span className="block bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-emerald-500 to-green-600">
-                        Farm's Potential
+                    <span className="block text-green-500">
+                        Farm&apos;s Potential
                     </span>
                 </h1>
                 <p className="text-gray-400 text-lg">
@@ -70,7 +67,6 @@ export default function Login() {
                 </p>
             </div>
 
-            {/* Card */}
             <div className="w-full max-w-md bg-[#121418] border border-gray-800 rounded-2xl p-8 shadow-xl">
                 <h2 className="text-2xl font-bold text-white mb-6 text-center">Welcome Back</h2>
 
@@ -102,21 +98,21 @@ export default function Login() {
                             name="password"
                             onChange={handleChange}
                             className="w-full rounded-xl border border-gray-700 p-3 bg-black/30 text-white focus:border-green-500 outline-none"
-                            placeholder="••••••••"
+                            placeholder="Password"
                         />
                     </div>
 
                     <button
                         disabled={loading}
                         type="submit"
-                        className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition"
+                        className="w-full py-3 rounded-xl font-bold text-white bg-green-600 hover:from-green-500 hover:to-emerald-400 disabled:opacity-50 transition"
                     >
                         {loading ? 'Authenticating...' : 'Access Dashboard'}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-400">
-                    Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                     <button onClick={() => navigate('/signup')} className="text-green-400 font-bold hover:text-green-300">
                         Sign Up
                     </button>

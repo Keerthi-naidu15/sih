@@ -17,19 +17,19 @@ export default function Schemes() {
         if (type === 'green') return {
             border: 'border-l-green-500',
             icon:   <ShieldAlert className="text-green-500" size={24} />,
-            btn:    'from-green-600 to-green-400',
+            btn:    'bg-green-600',
             glow:   'shadow-[0_0_15px_rgba(34,197,94,0.1)]'
         };
         if (type === 'blue') return {
             border: 'border-l-blue-500',
             icon:   <Activity className="text-blue-500" size={24} />,
-            btn:    'from-blue-600 to-blue-400',
+            btn:    'bg-blue-600',
             glow:   'shadow-[0_0_15px_rgba(59,130,246,0.1)]'
         };
         return {
             border: 'border-l-orange-500',
             icon:   <Wallet className="text-orange-500" size={24} />,
-            btn:    'from-orange-600 to-orange-400',
+            btn:    'bg-orange-600',
             glow:   'shadow-[0_0_15px_rgba(249,115,22,0.1)]'
         };
     };
@@ -107,7 +107,7 @@ export default function Schemes() {
                                 <button
                                     onClick={() => scheme.link && scheme.link !== '#' && window.open(scheme.link, '_blank', 'noopener,noreferrer')}
                                     disabled={!scheme.link || scheme.link === '#'}
-                                    className={`w-full md:w-auto text-sm font-bold text-white bg-gradient-to-r ${theme.btn} px-6 py-3 rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    className={`w-full md:w-auto text-sm font-bold text-white ${theme.btn} px-6 py-3 rounded-xl shadow-lg transition-transform hover:scale-105 active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed`}
                                 >
                                     Apply Now
                                 </button>

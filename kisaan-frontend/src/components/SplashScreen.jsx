@@ -32,9 +32,6 @@ export default function SplashScreen({ onFinish }) {
       transition={{ duration: 0.8 }}
       className="fixed inset-0 z-[10000] flex items-center justify-center bg-[#0a0c0a]"
     >
-      {/* Background radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.15)_0%,transparent_70%)] pointer-events-none"></div>
-
       <div className="text-center relative">
         {/* Animated Logo Container */}
         <motion.div
@@ -44,11 +41,7 @@ export default function SplashScreen({ onFinish }) {
            className="mb-8 relative inline-block"
         >
           <div className="w-32 h-32 md:w-40 md:h-40 bg-green-500/10 rounded-[2.5rem] border border-green-500/20 flex items-center justify-center p-4 backdrop-blur-xl shadow-[0_20px_50px_rgba(22,163,74,0.3)]">
-            <img 
-              src="/logo.png" 
-              alt="Logo" 
-              className="w-full h-full object-contain"
-            />
+            <Leaf className="w-full h-full text-green-500" />
           </div>
           
           {/* Subtle logo pulse */}
@@ -67,7 +60,7 @@ export default function SplashScreen({ onFinish }) {
             transition={{ delay: 0.5, duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-white mb-2">
-              Kisaan <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-500">Konnect</span>
+              Kisaan <span className="text-green-500">Konnect</span>
             </h1>
             <p className="text-gray-400 font-medium tracking-widest uppercase text-xs">
               Smart Agriculture. Better Future.
@@ -82,7 +75,7 @@ export default function SplashScreen({ onFinish }) {
             className="w-64 mx-auto mt-12 bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5"
           >
             <motion.div 
-              className="bg-gradient-to-r from-green-600 to-emerald-400 h-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"
+              className="bg-green-600 h-full shadow-[0_0_10px_rgba(34,197,94,0.5)]"
               style={{ width: `${progress}%` }}
               transition={{ ease: "linear" }}
             />

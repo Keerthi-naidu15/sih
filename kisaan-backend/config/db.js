@@ -1,13 +1,17 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
-  }
+    const mongoUri = process.env.MONGO_URI;
+
+    if (!mongoUri) {
+        throw new Error('MONGO_URI is not set. Add it in kisaan-backend/.env');
+    }
+
+    await mongoose.connect(mongoUri, {
+        serverSelectionTimeoutMS: 10000
+    });
+
+    console.log('MongoDB connected');
 };
 
 module.exports = connectDB;

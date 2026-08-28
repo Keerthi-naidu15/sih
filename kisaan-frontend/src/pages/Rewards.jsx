@@ -154,6 +154,7 @@ function ProductCard({ product, highlight = false }) {
 // =============================================
 export default function Rewards() {
     const user = useStore(state => state.user);
+    const token = useStore(state => state.token);
 
     const storeAdvisory = useStore(state => state.advisoryResult);
     const [advisoryFertilizer, setAdvisoryFertilizer] = useState(storeAdvisory?.fertilizer || null);
@@ -161,6 +162,9 @@ export default function Rewards() {
     const [searchQuery, setSearchQuery]               = useState('');
 
     const crop = user?.crop_type || user?.crop || '';
+    const getAuthHeaders = () => ({
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    });
 
     // =============================================
     // FETCH LATEST ADVISORY RESULT
@@ -177,7 +181,9 @@ export default function Rewards() {
             try {
                 const userId = user?._id || user?.id;
                 if (!userId) return;
-                const res  = await fetch(`${API_URL}/api/advisory/latest/${userId}`);
+                const res  = await fetch(`${API_URL}/api/advisory/latest/${userId}`, {
+                    headers: getAuthHeaders()
+                });
                 if (!res.ok) return;
                 const data = await res.json();
                 if (data?.fertilizer) setAdvisoryFertilizer(data.fertilizer);
